@@ -42,7 +42,7 @@ class StyledButton(Button):
 class CheckScannerApp(App):
     def build(self):
         self.title = 'Check Scanner'
-        Window.size = (800, 600)
+        Window.size = (900, 700)
         Window.bind(on_dropfile=self._on_file_drop)
 
         self.layout = FloatLayout()

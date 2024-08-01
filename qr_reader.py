@@ -1,12 +1,15 @@
+import PIL.ImageShow
 from pylibdmtx import pylibdmtx
 from PIL import Image
 
 class QRReader:
     def read_qr_code(self, image_path):
         image = Image.open(image_path)
-        decoded_objects = pylibdmtx.decode(image)
+        width, height = image.size
+        qr_roi = image.crop((0, 0, width, int(height * 0.3)))
+        #PIL.ImageShow.show(qr_roi) # kırpılan kısmı gösterme satırı
+        decoded_objects = pylibdmtx.decode(qr_roi)
         if decoded_objects:
-            print(decoded_objects)
             qr_code = decoded_objects[0].data.decode('utf-8')
             return self.process_qr_code(qr_code)
         return None

@@ -4,7 +4,7 @@ base = None
 
 executables = [Executable("gui.py", base=base)]
 
-packages = ["kivy", "pylibdmtx", "pytesseract", "PIL", "numpy"]
+packages = ["kivy", "pylibdmtx", "pytesseract", "Pillow", "numpy"]
 options = {
     'build_exe': {
         'packages': packages,
@@ -12,9 +12,9 @@ options = {
 }
 
 setup(
-    name = "Check Scanner",
-    options = options,
-    version = "1.0",
-    description = 'An application to read and compare QR and MICR codes on checks',
-    executables = executables
+    name="Check Scanner",
+    options=options,
+    version="1.0",
+    description='An application to read and compare QR and MICR codes on checks',
+    executables=executables
 )

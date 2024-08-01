@@ -19,6 +19,7 @@ class MICRReader:
         micr_code = self._extract_micr_code(cropped_image)
         micr_code = self._replace_invalid_characters(micr_code)
         pil_image = PILImage.fromarray(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
+        #PILImage._show(pil_image)  #kırpılan görüntüyü görmek için
         return micr_code, pil_image
 
     def _crop_micr_area(self, image):
