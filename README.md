@@ -59,6 +59,7 @@ Bu proje, çek üzerindeki QR kodlarını ve MICR kodlarını okuyan ve karşıl
     ```plaintext
     C:\Program Files\Tesseract-OCR\tessdata
     ```
+4. Dizinde bulunan e13b.tessdata dosyasını C:\Program Files\Tesseract-OCR\tessdata dizinine kopyalamayı unutmayın!!!
 
 ## Proje Yapısı
 
