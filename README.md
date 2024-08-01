@@ -35,6 +35,12 @@ Bu proje, çek üzerindeki QR kodlarını ve MICR kodlarını okuyan ve karşıl
     ```bash
     pip install kivy==2.1.0 Pillow==9.2.0 numpy==1.23.3 pylibdmtx==0.1.9 pytesseract==0.3.9 opencv-python==4.6.0.66
     ```
+    
+    **yada terminalden şu komutu girin:**
+   
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ### Tesseract OCR Kurulumu
 
