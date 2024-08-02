@@ -15,6 +15,7 @@ from kivy.clock import Clock
 from PIL import Image as PILImage
 import numpy as np
 import threading
+import os
 
 from qr_reader import QRReader
 from micr_reader import MICRReader
@@ -90,7 +91,7 @@ class CheckScannerApp(App):
         self.micr_reader = MICRReader(tessdata_dir=r'C:\Program Files\Tesseract-OCR\tessdata')
 
         # Initial image to display
-        initial_image_path = "ornek_cek.png"
+        initial_image_path = os.path.join('resources', 'ornek_cek.png')
         self.load_initial_image(initial_image_path)
 
         return self.layout

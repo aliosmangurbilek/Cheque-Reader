@@ -6,12 +6,16 @@ block_cipher = None
 a = Analysis(
     ['gui.py'],
     pathex=['.'],
-    binaries=[],
+    binaries=[
+        (r'C:\Users\alios\PycharmProjects\Cheque-Reader\.venv\Lib\site-packages\pylibdmtx\libdmtx-64.dll', '.')  # libdmtx-64.dll dosyasını ekleyin
+    ],
     datas=[
-        ('qr_reader.py', '.'),
-        ('micr_reader.py', '.'),
+        (r'C:\Users\alios\PycharmProjects\Cheque-Reader\qr_reader.py', '.'),
+        (r'C:\Users\alios\PycharmProjects\Cheque-Reader\micr_reader.py', '.'),
         (r'C:\Program Files\Tesseract-OCR\tesseract.exe', '.'),
-        (r'C:\Program Files\Tesseract-OCR\tessdata', 'tessdata')
+        (r'C:\Program Files\Tesseract-OCR\tessdata', 'tessdata'),
+        (r'C:\Users\alios\PycharmProjects\Cheque-Reader\resources\icon.webq', 'resources'),
+        (r'C:\Users\alios\PycharmProjects\Cheque-Reader\resources\ornek_cek.png', 'resources')  # ornek_cek.png dosyasını ekleyin
     ],
     hiddenimports=[
         'kivy.deps.sdl2',
@@ -32,6 +36,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='CheckScanner',
+    icon='resources/icon.webq',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
