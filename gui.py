@@ -1,31 +1,30 @@
-from kivy.app import App
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.popup import Popup
+from kivy.lang import Builder
+from kivymd.app import MDApp
+from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.label import MDLabel
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.floatlayout import MDFloatLayout
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.filemanager import MDFileManager
 from kivy.core.window import Window
 from kivy.uix.image import Image as KivyImage
 from kivy.graphics.texture import Texture
-from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.progressbar import ProgressBar
 from kivy.clock import Clock
 from PIL import Image as PILImage
 import numpy as np
 import threading
-import os
-
 from qr_reader import QRReader
 from micr_reader import MICRReader
 
-class StyledButton(Button):
+
+class StyledButton(MDRaisedButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.background_normal = ''
-        self.background_color = (0.2, 0.6, 0.8, 1)
-        self.color = (1, 1, 1, 1)
+        self.md_bg_color = (0.2, 0.6, 0.8, 1)
+        self.text_color = (1, 1, 1, 1)
         self.font_size = 18
         self.bold = True
         self.size_hint = (None, None)
@@ -34,54 +33,57 @@ class StyledButton(Button):
         self.bind(on_release=self.on_release_effect)
 
     def on_press_effect(self, instance):
-        self.background_color = (0.1, 0.5, 0.7, 1)
+        self.md_bg_color = (0.1, 0.5, 0.7, 1)
 
     def on_release_effect(self, instance):
-        self.background_color = (0.2, 0.6, 0.8, 1)
+        self.md_bg_color = (0.2, 0.6, 0.8, 1)
 
-class CheckScannerApp(App):
+class CheckScannerApp(MDApp):
     def build(self):
+        self.theme_cls.theme_style = "Dark"  # Koyu tema
+        self.theme_cls.primary_palette = "BlueGray"
+
         self.title = 'Check Scanner'
         Window.size = (900, 700)
         Window.bind(on_dropfile=self._on_file_drop)
 
-        self.layout = FloatLayout()
+        self.layout = MDFloatLayout()
 
-        self.img = KivyImage(size_hint=(1, 0.8), allow_stretch=True, keep_ratio=True, pos_hint={'x': 0, 'top': 1})
+        self.img = KivyImage(size_hint=(1, 0.8), allow_stretch=True, keep_ratio=True, pos_hint={'x': 0, 'top': 1.1})
         self.layout.add_widget(self.img)
 
         self.scroll_view = ScrollView(size_hint=(1, 0.2), pos_hint={'x': 0, 'y': 0})
-        self.result_layout = BoxLayout(orientation='vertical', size_hint_y=None)
+        self.result_layout = MDBoxLayout(orientation='vertical', size_hint_y=None)
         self.result_layout.bind(minimum_height=self.result_layout.setter('height'))
 
-        self.micr_label = Label(text='MICR Kodu:', size_hint_y=None, height=30)
+        self.micr_label = MDLabel(text='MICR Kodu:', size_hint_y=None, height=20)
         self.result_layout.add_widget(self.micr_label)
 
-        self.micr_code_input = TextInput(readonly=True, multiline=True, size_hint_y=None, height=60)
+        self.micr_code_input = MDTextField(readonly=True, multiline=True, size_hint_y=None, height=50)
         self.result_layout.add_widget(self.micr_code_input)
 
-        self.qr_label = Label(text='QR Kodu:', size_hint_y=None, height=30)
+        self.qr_label = MDLabel(text='QR Kodu:', size_hint_y=None, height=20)
         self.result_layout.add_widget(self.qr_label)
 
-        self.qr_code_input = TextInput(readonly=True, multiline=True, size_hint_y=None, height=60)
+        self.qr_code_input = MDTextField(readonly=True, multiline=True, size_hint_y=None, height=50)
         self.result_layout.add_widget(self.qr_code_input)
 
         self.scroll_view.add_widget(self.result_layout)
         self.layout.add_widget(self.scroll_view)
 
-        self.load_button = StyledButton(text='Görüntü Yükle', pos_hint={'x': 0, 'y': 0.25})
+        self.load_button = StyledButton(text='Görüntü Yükle', pos_hint={'x': 0.1, 'y': 0.30})
         self.load_button.bind(on_press=self.show_file_chooser)
         self.layout.add_widget(self.load_button)
 
-        self.qr_button = StyledButton(text='QR Oku', pos_hint={'x': 0.25, 'y': 0.25})
+        self.qr_button = StyledButton(text='QR Oku', pos_hint={'x': 0.35, 'y': 0.30})
         self.qr_button.bind(on_press=self.read_qr)
         self.layout.add_widget(self.qr_button)
 
-        self.micr_button = StyledButton(text='MICR Oku', pos_hint={'x': 0.5, 'y': 0.25})
+        self.micr_button = StyledButton(text='MICR Oku', pos_hint={'x': 0.55, 'y': 0.30})
         self.micr_button.bind(on_press=self.read_micr)
         self.layout.add_widget(self.micr_button)
 
-        self.compare_button = StyledButton(text='Karşılaştır', pos_hint={'x': 0.75, 'y': 0.25})
+        self.compare_button = StyledButton(text='Karşılaştır', pos_hint={'x': 0.75, 'y': 0.30})
         self.compare_button.bind(on_press=self.compare_codes)
         self.layout.add_widget(self.compare_button)
 
@@ -91,37 +93,49 @@ class CheckScannerApp(App):
         self.micr_reader = MICRReader(tessdata_dir=r'C:\Program Files\Tesseract-OCR\tessdata')
 
         # Initial image to display
-        initial_image_path = os.path.join('resources', 'ornek_cek.png')
+        initial_image_path = "resources/ornek_cek.png"
         self.load_initial_image(initial_image_path)
+
+        # FileManager for file selection
+        self.file_manager = MDFileManager(
+            exit_manager=self.exit_manager,
+            select_path=self.select_path,
+            preview=True
+        )
 
         return self.layout
 
     def load_initial_image(self, file_path):
-        pil_image = PILImage.open(file_path)
-        self.update_image(pil_image)
-        self.img.source = file_path
-        self.img.reload()
+        self.update_image_source(file_path)
         self.qr_code = None
         self.micr_code = None
 
-    def show_file_chooser(self, instance):
-        content = FileChooserListView()
-        popup = Popup(title="Bir dosya seçin", content=content, size_hint=(0.9, 0.9))
-        content.bind(on_submit=lambda instance, selection, touch: self.load_image(selection, popup))
-        popup.open()
+    def show_file_chooser(self, *args):
+        self.file_manager.show('/')
 
-    def load_image(self, selection, popup):
+    def select_path(self, path):
+        self.load_image([path])
+        self.file_manager.close()
+
+    def exit_manager(self, *args):
+        self.file_manager.close()
+
+    def load_image(self, selection, popup=None):
         file_path = selection[0] if selection else None
         if file_path:
-            pil_image = PILImage.open(file_path)
-            self.update_image(pil_image)
-            self.img.source = file_path
-            self.img.reload()
+            self.update_image_source(file_path)
             self.qr_code = None
             self.micr_code = None
-            popup.dismiss()
+            if popup:
+                popup.dismiss()
 
-    def update_image(self, pil_image):
+    def update_image_source(self, file_path):
+        pil_image = PILImage.open(file_path)
+        self.update_image_texture(pil_image)
+        self.img.source = file_path
+        self.img.reload()
+
+    def update_image_texture(self, pil_image):
         data = np.array(pil_image)
         buf = data.tobytes()
         texture = Texture.create(size=(data.shape[1], data.shape[0]), colorfmt='rgb')
@@ -151,14 +165,11 @@ class CheckScannerApp(App):
 
     def _read_micr_thread(self):
         file_path = self.img.source if self.img.source else None
-        print(f"MICR kodu okuma için dosya yolu: {file_path}")  # Debug mesajı
         if file_path:
             try:
                 self.micr_code, micr_image = self.micr_reader.read_micr_code(file_path)
-                print(f"MICR kodu: {self.micr_code}")  # Debug mesajı
                 Clock.schedule_once(lambda dt: self.update_label_with_micr_code(), 0)
             except Exception as e:
-                print(f"Error reading MICR code: {e}")  # Debug mesajı
                 Clock.schedule_once(lambda dt: self.update_label_with_error(), 0)
 
     def update_label_with_micr_code(self):
@@ -180,8 +191,6 @@ class CheckScannerApp(App):
             if cleaned_qr_code == cleaned_micr_code:
                 result_text += 'Sonuçlar: QR kodu ve MICR kodu aynı.'
             else:
-                print(cleaned_qr_code + "qr")
-                print(cleaned_micr_code + "mıcr")
                 result_text += 'Sonuçlar: QR kodu ve MICR kodu farklı.'
             Clock.schedule_once(lambda dt: self.show_result_popup(result_text), 0)
         else:
@@ -189,35 +198,23 @@ class CheckScannerApp(App):
             Clock.schedule_once(lambda dt: self.show_result_popup(result_text), 0)
 
     def clean_code(self, code):
-        # Koddaki boşlukları ve özel karakterleri sil
         return ''.join(filter(str.isdigit, code))
 
     def show_result_popup(self, text):
-        content = BoxLayout(orientation='vertical')
-        label = Label(text=text, size_hint_y=None, height=150)
-        button = Button(text='Tamam', size_hint_y=None, height=50)
-        content.add_widget(label)
-        content.add_widget(button)
-
-        popup = Popup(title='Sonuç', content=content, size_hint=(0.6, 0.4))
-        button.bind(on_press=popup.dismiss)
-        popup.open()
-
-    def _update_scroll_view_height(self, instance, value):
-        self.result_layout.height = self.result_layout.minimum_height
+        self.dialog = MDDialog(title='Sonuç', text=text, size_hint=(0.6, 0.4), buttons=[
+            MDRaisedButton(text='Tamam', on_release=lambda x: self.dialog.dismiss())
+        ])
+        self.dialog.open()
 
     def _on_file_drop(self, window, file_path):
-        file_path = file_path.decode('utf-8')  # Byte to string
-        pil_image = PILImage.open(file_path)
-        self.update_image(pil_image)
-        self.img.source = file_path
-        self.img.reload()
+        file_path = file_path.decode('utf-8')
+        self.update_image_source(file_path)
         self.qr_code = None
         self.micr_code = None
 
     def show_loading_popup(self):
         self.progress_bar = ProgressBar(max=1)
-        self.loading_popup = Popup(title='İşlem Yapılıyor', content=self.progress_bar, size_hint=(0.6, 0.2))
+        self.loading_popup = MDDialog(title='İşlem Yapılıyor', type="custom", content_cls=self.progress_bar, size_hint=(0.6, 0.2))
         self.loading_popup.open()
         Clock.schedule_interval(self._update_progress, 0.1)
 
